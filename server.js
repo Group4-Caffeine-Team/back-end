@@ -12,6 +12,9 @@ const axios = require('axios');
 const PORT = process.env.PORT;
 const client = new pg.Client(process.env.DATABASE_URL);
 server.use(express.json())  // to handle post request method 
+server.get('/wishlist', wishList);
+server.post('/add-to-reading', addToReadingList);
+server.post('/add-to-wish', addToWishList);
 server.put('/updatemodal', updateModal);
 server.delete('/deleteitemfromreading/:id',deleteItemFromReading );
 server.delete('/deleteitemfromwish/:id', deleteItemFromWish);
@@ -19,6 +22,49 @@ server.get('*', defaultHandler)
 server.use(errorHandler)
 
 
+
+function wishList(req,res){
+
+    const sql = `SELECT * FROM wishlist`;
+    client.query(sql)
+        .then(data => {
+            res.send(data.rows);
+        })
+
+        .catch((error) => {
+            errorHandler(error, req, res)
+        })
+}
+
+function addToReadingList(req, res){
+    const recipe = req.body;
+    console.log(recipe);
+    const sql = `INSERT INTO readinglist (book_image, title, author, descrip, buy_links)
+    VALUES ($1, $2, $3, $4, $5);`
+    const values = [recipe.book_image, recipe.title, recipe.author, recipe.description, recipe.buy_links];
+    client.query(sql, values)
+        .then(data => {
+            res.send("The data has been added successfully");
+        })
+        .catch((error) => {
+            errorHandler(error, req, res)
+        })  
+}
+
+function addToWishList(req, res){
+    const recipe = req.body;
+    console.log(recipe);
+    const sql = `INSERT INTO wishlist (book_image, title, author, descrip, buy_links)
+    VALUES ($1, $2, $3, $4, $5);`
+    const values = [recipe.book_image ,recipe.title, recipe.author, recipe.description, recipe.buy_links];
+    client.query(sql, values)
+        .then(data => {
+            res.send("The data has been added successfully");
+        })
+        .catch((error) => {
+            errorHandler(error, req, res)
+        })
+}
 
 function updateModal (req, res){
     const readinglist = req.body;
@@ -87,9 +133,11 @@ function errorHandler(error, req, res) {
     res.status(500).send(err)
 }
 
+
 client.connect()
     .then(() => {
         server.listen(PORT, () => {
             console.log(`Listening on ${PORT}: I'm ready`)
+
         })
     })
