@@ -11,8 +11,18 @@ CREATE TABLE IF NOT EXISTS readinglist (
     finsh_reading BOOLEAN,
     book_mark INT,
     recommindation BOOLEAN
+
+  
+    
+);
+
+DROP TABLE IF EXISTS wishlist;
+
+
+
 );
 DROP TABLE IF EXISTS wishlist;
+
 CREATE TABLE IF NOT EXISTS wishlist (
     id SERIAL PRIMARY KEY,
     book_image VARCHAR(255),
@@ -20,4 +30,5 @@ CREATE TABLE IF NOT EXISTS wishlist (
     author VARCHAR(255),
     descrip VARCHAR(255),
     buy_links text[]
+
 );

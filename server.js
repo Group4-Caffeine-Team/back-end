@@ -1,17 +1,26 @@
 'use strict'
 
-
 const express = require('express');
 const server = express();
-const cors = require('cors');
-require('dotenv').config();
-server.use(cors()) // middleware
-const pg = require('pg');
-const axios = require('axios');
 
+const cors = require('cors');
+const axios = require('axios');
+server.use(cors());
+require('dotenv').config();
+
+const bookapi = process.env.bookapi;
+const db = process.env.db;
+
+const pg = require('pg');
+const client = new pg.Client(db);
 const PORT = process.env.PORT;
-const client = new pg.Client(process.env.DATABASE_URL);
-server.use(express.json())  // to handle post request method 
+server.use(express.json());
+
+
+
+server.get('/', getCategoryList);
+server.get('/category-items', categoryItemsList);
+server.get('/readingnow', readingNowList);
 server.get('/wishlist', wishList);
 server.post('/add-to-reading', addToReadingList);
 server.post('/add-to-wish', addToWishList);
@@ -22,6 +31,65 @@ server.get('*', defaultHandler)
 server.use(errorHandler)
 
 
+
+
+function BookTypeList(list_name, list_name_encoded) {
+    this.list_name = list_name;
+    this.list_name_encoded = list_name_encoded
+}
+function getCategoryList(req, res) {
+    let url = `https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=${bookapi}`;
+    axios.get(url)
+        .then(result => {
+            console.log(result.data.results);
+            let list = result.data.results.map(item => {
+                let type = new BookTypeList(item.list_name, item.list_name_encoded)
+                return type;
+            })
+
+            res.send(list);
+        })
+        .catch((error) => {
+            res.status(500).send(error);
+        })
+}
+////////
+function book(book_image, title, author, description, buy_links) {
+    this.book_image = book_image;
+    this.title = title;
+    this.author = author;
+    this.description = description;
+    this.buy_links = buy_links
+}
+function categoryItemsList(req, res) {
+    let booksType = req.query.list_name_encoded;
+    let url = `https://api.nytimes.com/svc/books/v3/lists/current/${booksType}.json?api-key=${bookapi}`;
+    axios.get(url)
+        .then(result => {
+            console.log(result.data.results.books);
+            let list = result.data.results.books.map(item => {
+                let type = new book(item.book_image, item.title, item.author, item.description, item.buy_links)
+                return type;
+            })
+
+            res.send(list);
+        })
+        .catch((error) => {
+            res.status(500).send(error);
+        })
+}
+
+function readingNowList(req, res){
+  let sql=`SELECT * FROM readinglist;`
+  client.query(sql)
+  .then(result=>{
+    res.send(result);
+  })
+  .catch((error) => {
+    res.status(500).send(error);
+})
+
+}
 
 function wishList(req,res){
 
@@ -132,7 +200,6 @@ function errorHandler(error, req, res) {
     }
     res.status(500).send(err)
 }
-
 
 client.connect()
     .then(() => {
