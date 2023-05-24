@@ -24,7 +24,8 @@ function updateModal (req, res){
     const readinglist = req.body;
     const sql = `UPDATE readinglist
     SET book_image = $1, title = $2, author=$3, descrip=$4, buy_links=$5, qouts=$6, opinion=$7, finsh_reading=$8, 
-    book_mark=$9, recommindation=$10`;
+    book_mark=$9, recommindation=$10
+    WHERE id = ${readinglist.id} RETURNING *`;
     const values = [readinglist.book_image, readinglist.title, readinglist.author,
         readinglist.description, readinglist.buy_links, readinglist.qouts, readinglist.opinion, readinglist.finsh_reading,
         readinglist.book_mark, readinglist.recommindation]
