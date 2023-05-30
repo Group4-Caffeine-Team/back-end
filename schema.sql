@@ -19,10 +19,6 @@ CREATE TABLE IF NOT EXISTS readinglist (
 DROP TABLE IF EXISTS wishlist;
 
 
-
-);
-DROP TABLE IF EXISTS wishlist;
-
 CREATE TABLE IF NOT EXISTS wishlist (
     id SERIAL PRIMARY KEY,
     book_image VARCHAR(255),
@@ -30,5 +26,14 @@ CREATE TABLE IF NOT EXISTS wishlist (
     author VARCHAR(255),
     descrip VARCHAR(255),
     buy_links text[]
+
+);
+
+DROP TABLE IF EXISTS booklinks;
+CREATE TABLE IF NOT EXISTS booklinks (
+  id SERIAL PRIMARY KEY,
+  book_id INT,
+  book_link VARCHAR(255),
+  book_link_name VARCHAR(255)
 
 );

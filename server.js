@@ -21,6 +21,7 @@ server.use(express.json());
 server.get('/', getCategoryList);
 server.get('/category-items', categoryItemsList);
 server.get('/readingnow', readingNowList);
+
 server.get('/wishlist', wishList);
 server.post('/add-to-reading', addToReadingList);
 server.post('/add-to-wish', addToWishList);
@@ -83,7 +84,7 @@ function readingNowList(req, res){
   let sql=`SELECT * FROM readinglist;`
   client.query(sql)
   .then(result=>{
-    res.send(result);
+    res.send(result.rows);
   })
   .catch((error) => {
     res.status(500).send(error);
@@ -112,6 +113,7 @@ function addToReadingList(req, res){
     const values = [recipe.book_image, recipe.title, recipe.author, recipe.description, recipe.buy_links];
     client.query(sql, values)
         .then(data => {
+            console.log(data.rows);
             res.send("The data has been added successfully");
         })
         .catch((error) => {
